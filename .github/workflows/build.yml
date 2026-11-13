@@ -20,10 +20,13 @@ jobs:
       - name: Unzip project
         run: |
           unzip -o files.zip -d build_dir
-          find build_dir | head -n 40
+          for z in $(find build_dir -name "*.zip"); do unzip -o "$z" -d "${z%.zip}_x"; done
+          find build_dir | head -n 60
       - name: Build debug APK
         run: |
-          DIR=$(dirname "$(find build_dir -name settings.gradle.kts | head -n 1)")
+          FILE=$(find build_dir -name settings.gradle.kts | head -n 1)
+          if [ -z "$FILE" ]; then echo "NO PROJECT FOUND"; exit 1; fi
+          DIR=$(dirname "$FILE")
           echo "Project folder: $DIR"
           cd "$DIR"
           gradle assembleDebug --no-daemon
@@ -33,4 +36,3 @@ jobs:
         with:
           name: WaifuPet-apk
           path: out/app-debug.apk
-          
